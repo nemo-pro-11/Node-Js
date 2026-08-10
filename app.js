@@ -2,41 +2,20 @@ const express = require("express");
 const app = express();
 const port = 3000;
 
+const methodOverride = require("method-override");
+app.use(methodOverride("_method"));
 
-// Wab Page preparation 
 
-app.set("view engine" , "ejs");
-app.get("/", (req, res) => {
-  res.render("index.ejs", {});
-});
-
-app.get("/user/add.html", (req, res) => {
-  res.render("user/add.ejs", {});
-});
-
-app.get("/user/view.html", (req, res) => {
-  res.render("user/view.ejs", {});
-});
-
-app.get("/user/edit.html", (req, res) => {
-  res.render("user/edit.ejs", {});
-});
-
-app.get("/user/search.html", (req, res) => {
-  res.render("user/search.ejs", {});
-});
-
+const Router = require('./router/routers')
 
 
 // connected Database
 const mongoose = require("mongoose");
 app.use(express.urlencoded({ extended: true }));
-const Article = require("./models/mySchema");
-
 mongoose
   .connect(
-    "mongodb+srv://Nemo1:1QAZ@cluster0.qg5noil.mongodb.net/AllData?appName=Cluster0",
-  // mongoose.connect("mongodb://localhost:27017")
+    // "mongodb+srv://Nemo1:1QAZ@cluster0.qg5noil.mongodb.net/AllData?appName=Cluster0",
+    "mongodb://localhost:27017",
   )
   .then(() => {
     app.listen(port, () => {
@@ -48,20 +27,25 @@ mongoose
   });
 
 
+
+
+
 // connected Style
 app.use(express.static("public"));
 //auto Style
-
 const path = require("path");
 const livereload = require("livereload");
 const liveReloadServer = livereload.createServer();
 liveReloadServer.watch(path.join(__dirname, "public"));
-
 const connectLivereload = require("connect-livereload");
+const console = require("console");
 app.use(connectLivereload());
-
 liveReloadServer.server.once("connection", () => {
   setTimeout(() => {
     liveReloadServer.refresh("/");
   }, 100);
 });
+
+
+
+app.use(Router)
