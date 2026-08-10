@@ -1,18 +1,67 @@
-const express = require('express');
-const mongoose = require('mongoose')
-const app = express()
-const port = 3000
+const express = require("express");
+const app = express();
+const port = 3000;
 
-app.get('/', (req, res) => {
-  res.sendFile( __dirname + "/Views/index.html")
-})
 
-mongoose.connect("mongodb+srv://Nemo1:1qaz2wsx@cluster0.qg5noil.mongodb.net/?appName=Cluster0").then(() => {
-  app.listen(port, () => {
-    console.log(`http://localhost:${port}`);
+// Wab Page preparation 
+
+app.set("view engine" , "ejs");
+app.get("/", (req, res) => {
+  res.render("index.ejs", {});
+});
+
+app.get("/user/add.html", (req, res) => {
+  res.render("user/add.ejs", {});
+});
+
+app.get("/user/view.html", (req, res) => {
+  res.render("user/view.ejs", {});
+});
+
+app.get("/user/edit.html", (req, res) => {
+  res.render("user/edit.ejs", {});
+});
+
+app.get("/user/search.html", (req, res) => {
+  res.render("user/search.ejs", {});
+});
+
+
+
+// connected Database
+const mongoose = require("mongoose");
+app.use(express.urlencoded({ extended: true }));
+const Article = require("./models/mySchema");
+
+mongoose
+  .connect(
+    "mongodb+srv://Nemo1:1QAZ@cluster0.qg5noil.mongodb.net/AllData?appName=Cluster0",
+  // mongoose.connect("mongodb://localhost:27017")
+  )
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`http://localhost:${port}`);
+    });
+  })
+  .catch((err) => {
+    console.log(err);
   });
- })
- .catch((err) => {
-   console.log(err);
- });
 
+
+// connected Style
+app.use(express.static("public"));
+//auto Style
+
+const path = require("path");
+const livereload = require("livereload");
+const liveReloadServer = livereload.createServer();
+liveReloadServer.watch(path.join(__dirname, "public"));
+
+const connectLivereload = require("connect-livereload");
+app.use(connectLivereload());
+
+liveReloadServer.server.once("connection", () => {
+  setTimeout(() => {
+    liveReloadServer.refresh("/");
+  }, 100);
+});
